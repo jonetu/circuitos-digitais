@@ -11,14 +11,14 @@ Entity Microprocessador is
 	SEL_MUX_ALU     : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
 	RECEBE_ENTRADA  : IN STD_LOGIC; -- aceita novas entradas nos registradores
 	CARRY_SAIDA_DO_MICRO : OUT STD_LOGIC;
-	SAIDA : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+	SAIDA : OUT STD_LOGIC_VECTOR(3 DOWNTO 0)
 	);
 end Microprocessador;
 
 
 
 Architecture meu_Microprocessador of Microprocessador is
-	TYPE BancoRegistradores is array(0 to 7) of STD_LOGIC; --0 a 3 para o A e 4 a 7 para o B
+	TYPE BancoRegistradores is array(0 to 7) of STD_LOGIC_VECTOR(3 DOWNTO 0); --0 a 3 para o A e 4 a 7 para o B
 	SIGNAL REGISTRADORES: BancoRegistradores;
 	SIGNAL SAIDA_ESCRITA, SAIDA_ALU : STD_LOGIC_VECTOR(3 DOWNTO 0);
 	SIGNAL RECEBEU_ENTRADA_A_OU_B : STD_LOGIC;
@@ -39,14 +39,10 @@ Architecture meu_Microprocessador of Microprocessador is
 	SIGNAL NAO : STD_LOGIC_VECTOR(3 DOWNTO 0);
 begin
 
-SAIDA(0) <= SAIDA_ALU(0); 
-SAIDA(1) <= SAIDA_ALU(1);
-SAIDA(2) <= SAIDA_ALU(2);
-SAIDA(3) <= SAIDA_ALU(3);
-SAIDA_ESCRITA(3 DOWNTO 0) <= ENTRADA;
+SAIDA <= SAIDA_ALU; 
+SAIDA_ESCRITA <= ENTRADA;
 
-
-carry(0)<= carry_In;
+carry(0)<= '0';
 carry(4 DOWNTO 1) <= (A AND B) OR (A AND carry(3 DOWNTO 0)) OR (B AND carry(3 DOWNTO 0));
 SOMA <= A XOR B XOR carry(3 DOWNTO 0);
 carry_Out <= carry(4);
@@ -56,6 +52,8 @@ CARRY_SAIDA_DO_MICRO <= carry_Out;
 OU(3 DOWNTO 0) <= A OR B;
 
 E(3 DOWNTO 0) <= A AND B;
+
+NAO(3 DOWNTO 0) <= NOT A;
 
 --Escolha da Funcao 
 WITH SEL_MUX_ALU SELECT
@@ -96,9 +94,15 @@ PROCESS (CLK, RESET, RECEBE_ENTRADA)
 			ELSIF ((CLK'event AND CLK = '1') AND (RECEBE_ENTRADA = '1')) THEN
 					--1 para A e 0 para B 
 					IF (RECEBEU_ENTRADA_A_OU_B = '1') THEN
-						REGISTRADORES(3 DOWNTO 0) <= SAIDA_ESCRITA;
+						REGISTRADORES(0) <= SAIDA_ESCRITA(0 DOWNTO 0);
+                   		REGISTRADORES(1) <= SAIDA_ESCRITA(1 DOWNTO 1);
+                    	REGISTRADORES(2) <= SAIDA_ESCRITA(2 DOWNTO 2);
+                    	REGISTRADORES(3) <= SAIDA_ESCRITA(3 DOWNTO 3);
 					    ELSE
-						REGISTRADORES(7 DOWNTO 4) <= SAIDA_ESCRITA;
+							REGISTRADORES(4) <= SAIDA_ESCRITA(0 DOWNTO 0);
+                    		REGISTRADORES(5) <= SAIDA_ESCRITA(1 DOWNTO 1);
+                    		REGISTRADORES(6) <= SAIDA_ESCRITA(2 DOWNTO 2);
+                    		REGISTRADORES(7) <= SAIDA_ESCRITA(3 DOWNTO 3);
 					
 					ELSE
 					     	REGISTRADORES(0) <= REGISTRADORES(0);
